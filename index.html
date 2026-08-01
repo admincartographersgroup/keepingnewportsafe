@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keeping Newport Safe | Relocating Fire Station 3</title>
+<meta name="description" content="Relocating Fire Station 3 will improve public safety across Newport Beach. Response analysis provided by the Newport Beach Firefighters Association.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{
+  --navy:#14304F; --blue:#4A7EBB; --ink:#222426; --muted:#5B6470;
+  --paper:#FFFFFF; --panel:#F2F5F8; --line:#D9E1E8;
+  --good:#1F7A3D; --bad:#B03A2E; --warn:#B8860B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',Arial,sans-serif;color:var(--ink);background:var(--paper);font-size:17px;line-height:1.62}
+h1,h2,h3{font-family:'Marcellus',Georgia,serif;color:var(--navy);font-weight:400;line-height:1.22}
+h1{font-size:2.25rem}
+h2{font-size:1.7rem;margin-bottom:0.7rem}
+h3{font-size:1.18rem;margin-bottom:0.4rem}
+p{margin-bottom:1rem}
+a{color:var(--blue)}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px}
+.wide{max-width:1140px;margin:0 auto;padding:0 22px}
+
+header.site{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:1000}
+.nav{max-width:1140px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:18px}
+.nav img{height:44px;width:auto}
+.nav .links{margin-left:auto;display:flex;gap:20px;align-items:center;font-size:0.95rem}
+.nav .links a{color:var(--ink);text-decoration:none}
+.nav .links a:hover{color:var(--blue)}
+.btn{display:inline-block;background:var(--navy);color:#FFFFFF;text-decoration:none;padding:9px 18px;border-radius:4px;font-weight:600;font-size:0.95rem}
+.btn:hover{background:#1d4470;color:#FFFFFF}
+.nav .links a.btn{color:#FFFFFF}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--navy)}
+@media(max-width:820px){.nav .links a.hidenav{display:none}}
+
+.hero{background:var(--navy);color:#fff;padding:60px 0 56px}
+.hero h1{color:#fff;max-width:820px;margin-bottom:18px;font-size:2.5rem}
+.hero p.lede{font-size:1.15rem;color:#D9E4F0;max-width:730px;margin-bottom:26px}
+.hero .cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero .btn{background:#fff;color:var(--navy)}
+.hero .btn:hover{background:#E4EBF3;color:var(--navy)}
+.hero .btn.ghost{background:transparent;color:#fff;border:1px solid #7C9AC0}
+.hero .btn.ghost:hover{background:rgba(255,255,255,0.08);color:#fff}
+
+section{padding:52px 0;border-bottom:1px solid var(--line)}
+section.alt{background:var(--panel)}
+.kicker{font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:8px}
+
+.pull{border-left:4px solid var(--blue);background:#fff;padding:16px 20px;margin:22px 0;font-size:1.05rem}
+.pull b{color:var(--navy)}
+
+table.data{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:0.95rem;background:#fff}
+table.data th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
+table.data td{border:1px solid var(--line);padding:7px 10px;vertical-align:top}
+table.data tr:nth-child(even) td{background:#F7FAFC}
+td.c{text-align:center}
+.d-good{color:var(--good);font-weight:700}
+.d-bad{color:var(--bad);font-weight:700}
+.d-warn{color:var(--warn);font-weight:700}
+.d-none{color:var(--muted)}
+.std-yes{color:var(--good);font-weight:600}
+.std-no{color:var(--bad);font-weight:600}
+.tablenote{font-size:0.85rem;color:var(--muted);font-style:italic;margin-top:6px}
+
+figure{margin:22px 0}
+figure img{width:100%;height:auto;border:1px solid var(--line)}
+figcaption{font-size:0.88rem;color:var(--muted);margin-top:8px}
+figcaption b{color:var(--ink)}
+
+#map{height:560px;border:1px solid var(--line)}
+.map-ui{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0}
+.toggle{display:inline-flex;border:1px solid var(--navy);border-radius:4px;overflow:hidden}
+.toggle button{border:0;background:#fff;color:var(--navy);padding:9px 16px;font-family:inherit;font-size:0.95rem;font-weight:600;cursor:pointer}
+.toggle button.active{background:var(--navy);color:#fff}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:0.9rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px #999}
+.sq{width:12px;height:12px;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px #999}
+
+.timeline{border-left:3px solid var(--blue);margin:18px 0 6px;padding-left:22px}
+.tl{margin-bottom:18px}
+.tl .date{font-weight:700;color:var(--navy);font-size:0.95rem}
+.tl p{margin-bottom:0;font-size:0.98rem}
+
+.fact{border:1px solid var(--line);margin-bottom:16px;background:#fff}
+.fact .claim{background:var(--panel);padding:12px 16px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line)}
+.fact .truth{padding:14px 16px}
+.fact .truth p{margin-bottom:0}
+.fact .truth .lead{color:var(--good);font-weight:700;margin-right:6px}
+
+/* Response tiers */
+.tiers{display:grid;gap:16px;margin:22px 0 6px}
+.tier{background:#fff;border:1px solid var(--line);border-left:4px solid var(--tc,#4A7EBB);padding:16px 18px}
+.tier .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.tier .name{font-family:'Marcellus',serif;font-size:1.1rem;color:var(--navy)}
+.tier .count{margin-left:auto;font-family:'Marcellus',serif;font-size:1.75rem;color:var(--tc,#4A7EBB);line-height:1}
+.tier .count small{font-family:'Source Sans 3',sans-serif;font-size:0.75rem;color:var(--muted);display:block;text-align:right;letter-spacing:0.06em}
+.units{display:flex;gap:12px;flex-wrap:wrap}
+.unit{border:1px solid var(--line);border-radius:3px;padding:8px 10px 9px;min-width:96px;background:#FCFDFE}
+.unit .ul{font-size:0.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.03em;line-height:1.25;margin-bottom:7px;min-height:2.1em}
+.unit .ul span{display:block;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0}
+.ff{display:flex;gap:4px}
+.ff i{width:9px;height:16px;background:var(--tc,#4A7EBB);border-radius:2px;display:block;opacity:0;transform:translateY(6px)}
+.tier.go .ff i{animation:pop .42s ease forwards}
+@keyframes pop{to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.ff i{opacity:1;transform:none}.tier.go .ff i{animation:none}}
+
+ol.refs{font-size:0.88rem;color:var(--muted);padding-left:22px}
+ol.refs li{margin-bottom:8px}
+.fineprint p{font-size:0.88rem;color:var(--muted)}
+.methodlist{font-size:0.88rem;color:var(--muted);margin:0 0 1rem 0;padding-left:0;list-style:none}
+.methodlist li{position:relative;padding-left:20px;margin-bottom:8px;line-height:1.55}
+.methodlist li::before{content:'\2013';position:absolute;left:0;color:var(--muted)}
+.fineprint h2,.fineprint h3{color:var(--navy)}
+.disclosurebox{border:1px solid var(--line);background:#FAFCFD;padding:16px 18px;margin:18px 0 6px}
+.disclosurebox p{font-size:0.88rem;color:var(--ink);margin-bottom:0.7rem}
+.disclosurebox p:last-child{margin-bottom:0}
+.disclosurebox b{color:var(--navy)}
+
+footer.site{background:var(--navy);color:#C7D5E5;padding:38px 0;font-size:0.92rem}
+footer.site .wrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+footer.site img{height:56px}
+footer.site p{margin:0}
+
+/* Support / advocacy form */
+.support-intro{max-width:760px}
+form.support{background:#fff;border:1px solid var(--line);padding:22px 24px;margin-top:22px;max-width:760px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.frow{grid-template-columns:1fr}}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:0.86rem;font-weight:700;color:var(--navy);margin-bottom:5px;letter-spacing:0.01em}
+.field label .req{color:var(--bad)}
+.field label .opt{font-weight:400;color:var(--muted)}
+.field input[type=text],.field input[type=email],.field input[type=tel],.field textarea{
+  width:100%;font-family:inherit;font-size:0.98rem;color:var(--ink);
+  padding:9px 11px;border:1px solid #C3CED9;border-radius:3px;background:#fff}
+.field textarea{min-height:120px;resize:vertical}
+.field input:focus,.field textarea:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+.consent{border:1px solid var(--line);background:var(--panel);padding:14px 16px;margin-bottom:16px}
+.consent label{display:flex;gap:10px;align-items:flex-start;font-size:0.85rem;color:var(--ink);font-weight:400;line-height:1.5}
+.consent input[type=checkbox]{margin-top:3px;width:16px;height:16px;flex:0 0 auto}
+.consent .note{font-size:0.8rem;color:var(--muted);margin-top:9px;line-height:1.5}
+.hp{position:absolute;left:-9999px}
+button.submit{background:var(--navy);color:#fff;border:0;font-family:inherit;font-size:1rem;font-weight:600;padding:11px 26px;border-radius:4px;cursor:pointer}
+button.submit:hover{background:#1d4470}
+.formnote{font-size:0.82rem;color:var(--muted);margin-top:12px}
+.footer-legal{display:block;text-align:center}
+.disclaimer{background:#fff;border:1px solid #fff;color:#111;text-align:center;padding:14px 18px;margin:26px auto 0;max-width:660px}
+.footer-privacy{margin-top:16px;font-size:0.88rem}
+.footer-privacy a{color:#AFC6E0}
+.disclaimer p{font-weight:700;font-size:0.95rem;line-height:1.5;color:#111}
+.disclaimer p + p{margin-top:10px}
+@media(max-width:620px){.disclaimer p{font-size:0.88rem}}
+
+/* Hero with photo background */
+.hero{position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:url('assets/station-hero.jpg') center 62% / cover no-repeat;filter:blur(3px);transform:scale(1.06)}
+.hero-bg:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,48,79,0.86) 0%,rgba(20,48,79,0.90) 55%,rgba(20,48,79,0.95) 100%)}
+.hero-inner{position:relative}
+.hero-inner .hero-block{max-width:840px;margin:0 auto}
+.hero-inner h1{text-align:center;max-width:820px;margin-left:auto;margin-right:auto}
+.hero-inner p.lede{max-width:840px;margin-left:0;margin-right:0}
+.hero-inner .cta{justify-content:flex-start}
+
+.arw{color:var(--good);font-size:0.85em;vertical-align:1px}
+
+/* Situation inset */
+.inset{max-width:820px;margin-left:auto;margin-right:auto;padding-left:26px;border-left:2px solid var(--line)}
+@media(max-width:760px){.inset{padding-left:14px}}
+
+.clearfix::after{content:'';display:block;clear:both}
+.equity{max-width:880px;margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}
+.equity h3{margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav">
+    <img src="assets/nbfa-logo.png" alt="Newport Beach Firefighters Association">
+    <div class="links">
+      <a class="hidenav" href="#situation">The Situation</a>
+      <a class="hidenav" href="#proposal">The Proposal</a>
+      <a class="hidenav" href="#map-section">Interactive Map</a>
+      <a class="hidenav" href="#facts">The Facts</a>
+      <a class="btn" href="#support">Support Public Safety</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-block">
+    <h1>Relocating Fire Station 3 Will Improve Public Safety Across Newport Beach</h1>
+    <p class="lede">Moving Station 3 to the Newport Transportation Center site brings the neighborhoods with the city's slowest fire and medical response inside the national four-minute standard, using the crews and apparatus Newport Beach already has. Newport Beach firefighters support this relocation.</p>
+    <div class="cta">
+      <a class="btn" href="#map-section">Explore the Map</a>
+      <a class="btn ghost" href="assets/NBFA_Station3_Response_Capabilities_Analysis.pdf" download>Download the Executive Summary</a>
+    </div>
+    </div>
+  </div>
+</div>
+
+<section id="situation">
+  <div class="wrap">
+    <div class="kicker">The Situation</div>
+    <h2>Thousands of residents wait too long for help</h2>
+    <div class="inset clearfix">
+      <p>Newport Beach firefighters work every day to deliver excellent service, save lives, and protect property. We also work to be good stewards of the public money that pays for it. Nothing determines whether we reach you in time more than where our stations sit, and station placement is a long-term decision the city lives with for fifty years.</p>
+
+      </div>
+
+      <p>In 2022, the city commissioned a Standards of Coverage study of the fire department [1]. It documented what firefighters already knew: travel times to the Port Streets, the Harbor Hills Views and Spyglass area, and the Bonita Canyon and Ford Road corridor exceed the four-minute national standard [7]. Today the first fire unit reaches the Port Streets in an estimated 5 minutes 15 seconds of travel, <b>31 percent past the national standard</b>, the Harbor Hills Views and Spyglass area in 4 minutes 41 seconds, <b>17 percent past it</b>, and the Bonita Canyon and Ford Road corridor in 4 minutes 49 seconds, <b>20 percent past it</b>. Those are the minutes in which a room fire flashes over and a cardiac arrest becomes unsurvivable.</p>
+      <p>The study's remedy was to build a ninth fire station. Four years later the city controls no site for it, no funding has been programmed for land, construction, or the twelve to fifteen new firefighters a ninth station would require in perpetuity, and population growth and heavier traffic have made the 2022 gap wider, not narrower. Building new stations everywhere is not a plan. Serving the most people well with the resources the city already has is a plan, and it is the one the firefighters of this city support.</p>
+      <div class="pull"><b>Station 3 also has to be rebuilt.</b> The building is aging and no longer fits the way a modern fire company works, and it is headed for replacement whether or not the city ever discusses coverage. That is the opening. A station that has to be rebuilt anyway should be rebuilt where it does the most good, and the city gets one chance at that choice for the next half century. Plan it deliberately now, on the data, and Newport Beach gets a better station in a better place. Put it off, and the decision gets made for us by a failure, on a day nobody chooses.</div>
+      <p>Relocating Station 3 answers both questions at once: it puts a rebuilt station where it closes the city's worst coverage gaps, and it does so without adding a single new position to the payroll.</p>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="proposal">
+  <div class="wrap">
+    <div class="kicker">The Proposal</div>
+    <h2>Firefighters support relocating Station 3 to where it serves the most people best</h2>
+    <p>The proposal relocates Fire Station 3 from Santa Barbara Drive to the Newport Transportation Center site at 1550 Avocado Avenue, and relocates the transportation center to a full replacement facility through a process the City and the Orange County Transportation Authority govern together.</p>
+    <p>This is not one official's idea. It is a matter of public safety and long-term investment that the City Council and the firefighters who staff the station fully support, so that we can deliver rapid response and save lives in your time of need. The Newport Beach Firefighters Association supports this relocation because the data supports it.</p>
+    <div class="timeline">
+      <div class="tl"><div class="date">April 2022</div><p>City-commissioned Standards of Coverage study documents the travel time deficiencies in the city's southeastern neighborhoods [1].</p></div>
+      <div class="tl"><div class="date">June 10, 2025</div><p>City Council votes 6-0 to request OCTA's support for relocating Station 3 to 1550 Avocado Avenue [2].</p></div>
+      <div class="tl"><div class="date">January 2026</div><p>OCTA contracts with HDR Engineering for a relocation feasibility study of the transportation center [4].</p></div>
+      <div class="tl"><div class="date">June 2026</div><p>OCTA and the City execute a term sheet under the cooperative agreement governing the potential relocation [5].</p></div>
+      <div class="tl"><div class="date">July 28, 2026</div><p>City Council votes 7-0 to initiate a memorandum of understanding with OCTA [6].</p></div>
+    </div>
+    <p>There is broad support for examining the relocation of the OCTA transportation center, including the Orange County Board of Supervisors, the Newport Beach City Council, the Teamsters union representing the transit workers, and the Newport Beach Firefighters Association [10]. All of them see the same value: a new transit facility for riders, preservation of transit function, Federal Transit Administration requirements met or exceeded, and a fire station placed where firefighters can finally meet the national response standard for neighborhoods that are critically underserved today [3].</p>
+  </div>
+</section>
+
+<section id="map-section">
+  <div class="wide">
+    <div class="kicker">Interactive Map</div>
+    <h2>See the change, neighborhood by neighborhood</h2>
+    <p style="max-width:880px">Toggle between the current and proposed Station 3 locations. Each marker shows the estimated travel time of the first-arriving unit from any Newport Beach fire station: green meets the four-minute national standard, yellow is 4:01 to 4:29, red is 4:30 or longer. Select any marker for the before-and-after figures.</p>
+    <div class="map-ui">
+      <div class="toggle">
+        <button id="btnCurrent" class="active" type="button">Current: Santa Barbara Dr</button>
+        <button id="btnProposed" type="button">Proposed: Avocado Ave</button>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#1F7A3D"></span>4:00 and under (meets standard)</span>
+        <span><span class="dot" style="background:#D4A017"></span>4:01 to 4:29</span>
+        <span><span class="dot" style="background:#B03A2E"></span>4:30 and over</span>
+        <span><span class="sq" style="background:#14304F"></span>Station 3 site</span>
+        <span><span class="sq" style="background:#7A8694"></span>Other NBFD stations</span>
+      </div>
+    </div>
+    <div id="map"></div>
+    <p class="tablenote">Travel time of the first-arriving unit from any station, light traffic. Driving distances to the affected areas are Association-measured routes; see Methodology.</p>
+    <div class="equity">
+      <h3>The same crews, serving more people, serving families faster</h3>
+      <p>Newport Beach cannot afford to add a new fire station on every block, and the firefighters of this city are not asking it to. Together, we can take this opportunity to place our next investment in a location that reaches the most people the fastest. That is what this relocation does, and it is why firefighters consider this a true public safety investment.</p>
+      <p>Coverage should not depend on which side of the city you happen to live on. Right now the Port Streets wait more than five minutes for a first unit while other neighborhoods see one in under two. Relocating Station 3 closes that spread without taking protection away from anyone: no neighborhood loses its first-due station, no area falls outside the standard, and the citywide worst case drops from 5:15 to 3:52. Every household in Newport Beach ends up on the right side of the four-minute line.</p>
+      <p>That is the most honest definition of good stewardship we know.</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="alt" id="results">
+  <div class="wrap">
+    <div class="kicker">What the Analysis Found</div>
+    <h2>Faster help where it is needed most</h2>
+    <p>Three areas of Newport Beach are outside the national four-minute standard today. Under the relocation, <b>every area of the city meets it</b>. That is the whole case, and it is why Newport Beach firefighters support the move.</p>
+    <div class="pull">
+      <b>Port Streets: 5:15 down to 2:52. <span class="arw">&#9660;</span></b> Two minutes and twenty-three seconds faster, from the worst-served area in the city to comfortably inside the standard.<br>
+      <b>Harbor Hills Views and Spyglass: 4:41 down to 2:52. <span class="arw">&#9660;</span></b> One minute and forty-nine seconds faster, with the driving route cut from 2.5 miles to 1.3.<br>
+      <b>Bonita Canyon and Ford Road: 4:49 down to 3:43. <span class="arw">&#9660;</span></b> One minute and six seconds faster, and inside the standard for the first time.<br>
+      <b>Citywide worst case: 5:15 today, 3:52 under the relocation.</b> No neighborhood is left outside the standard.
+    </div>
+    <p>Ten areas across the city are entirely unaffected, because their first-due station does not change: the Peninsula, Balboa Island, Balboa Pier, Lido Isle, Corona del Mar, Newport Heights, Westcliff and Dover Shores, Santa Ana Heights, Newport Ridge, and Cypress at Pacific Ridge. Several neighborhoods close to the current station give back time while remaining inside the standard: Eastbluff moves from 2:39 to 3:52 and Park Newport from 1:32 to 2:49. Those changes are measured in seconds. The gains in the underserved corridors are measured in minutes.</p>
+    <table class="data" id="resultsTable">
+      <tr><th>Area</th><th>Today</th><th>Standard</th><th>Proposed</th><th>Standard</th><th>Change</th></tr>
+    </table>
+    <p class="tablenote">First-due travel time, light traffic, first-arriving unit from any station, with Opticom signal preemption applied on the Jamboree corridor. A down arrow marks an area where response improves by 20 seconds or more. Total response from dispatch adds 60 to 80 seconds of turnout. Standard refers to the NFPA 1710 four-minute first-due travel objective. Times under one minute are shown as under 1:00.</p>
+    <figure>
+      <img src="assets/savings_charts.png" alt="Firefighters on scene over time for a confirmed working fire in four areas, current versus proposed">
+      <figcaption><b>Figure 1. Confirmed working fire: how fast the force assembles.</b> In the Port Streets and the Bonita Canyon and Ford Road corridor, the first engine, truck, and ambulance arrive substantially sooner under the relocation. In the Harbor Hills Views and Spyglass area, where apparatus currently climb from Corona del Mar or run the long way around, the first units arrive nearly two minutes sooner. In Eastbluff they arrive about a minute later and still inside the standard. In every case the balance of the citywide force arrives on an identical schedule, because no other station moves.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="facts">
+  <div class="wrap">
+    <div class="kicker">NBFA Facts</div>
+    <h2>False claims are circulating. Here are the facts.</h2>
+    <div class="fact">
+      <div class="claim">Some claim the relocation is the project of a single elected official.</div>
+      <div class="truth"><p><span class="lead">The record shows otherwise.</span>The June 2025 request to OCTA passed the City Council 6-0. The July 2026 direction to begin a memorandum of understanding passed 7-0. The firefighters who staff Station 3 support the move. Recorded unanimous votes are the action of a council, not a person.</p></div>
+    </div>
+    <div class="fact">
+      <div class="claim">Some claim the city's 2022 fire study recommended against the relocation.</div>
+      <div class="truth"><p><span class="lead">The study made no finding on this site.</span>Its models held all eight stations fixed; relocating any station was outside its scope, and the Avocado Avenue site was never evaluated. The same study documented the very travel time deficiencies the relocation fixes. The absence of a recommendation from a study that never examined the site is not a recommendation against it.</p></div>
+    </div>
+    <div class="fact">
+      <div class="claim">Some claim the move would degrade response to Eastbluff and nearby neighborhoods.</div>
+      <div class="truth"><p><span class="lead">Every area of the city meets the national standard under the relocation, including Eastbluff.</span>On measured driving routes with the city's existing signal preemption, Eastbluff moves from 2:39 to 3:52 and Corona del Mar High School from 2:14 to 3:09, both inside the four-minute standard. In exchange the Port Streets gain 2 minutes 23 seconds, the Harbor Hills Views and Spyglass area gains 1 minute 49 seconds, and the Bonita Canyon and Ford Road corridor gains 1 minute 6 seconds, all moving from outside the standard to inside it. Three areas fail the standard today. None does under the relocation. That is why the firefighters who staff these companies support the move.</p></div>
+    </div>
+    <div class="fact">
+      <div class="claim">Some claim the relocation exists to clear land for development.</div>
+      <div class="truth"><p><span class="lead">The recorded basis is response coverage.</span>The Newport Beach Firefighters Association supports moves that improve public safety, and this move improves public safety; that is why the Association supports it. Unanimous public votes, taken on fire response data, are the documented record. Handwritten staff notes recording exploratory options are not adopted policy, not a plan, and not a council action. No disposition of the Santa Barbara Drive property has been approved, negotiated, or brought to council, and this analysis assumes none.</p></div>
+    </div>
+    <div class="fact">
+      <div class="claim">Some claim OCTA opposes moving the transportation center.</div>
+      <div class="truth"><p><span class="lead">OCTA signed the process.</span>A cooperative agreement and term sheet govern a jointly overseen relocation feasibility study, with federal requirements and grantor concurrence as express conditions and a replacement facility as the premise. The City funds the study, as the initiating party should. That is a governed process, not opposition.</p></div>
+    </div>
+    <div class="fact">
+      <div class="claim">Some claim transit riders would be harmed.</div>
+      <div class="truth"><p><span class="lead">A replacement facility is a condition, not a hope.</span>The feasibility process exists to ensure riders are served as well or better, with Federal Transit Administration requirements as a hard gate, and the union representing the transit workers is among those supporting examination of the relocation.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<section class="alt" id="support">
+  <div class="wrap">
+    <div class="kicker">Support Public Safety</div>
+    <h2>Add your voice</h2>
+    <div class="support-intro">
+      <p>Newport Beach firefighters are asking for your support and your voice to the City Council in a meaningful, data-driven, fact-based discussion about the necessary and critical relocation of Fire Station 3.</p>
+      <p>Please leave your comments below to be shared with the Newport Beach City Council as we continue to provide fact-based information on how we can work together keeping Newport safe.</p>
+    </div>
+
+    <form class="support" name="council-comments" method="POST" data-netlify="true" netlify-honeypot="company" action="/thanks.html">
+      <input type="hidden" name="form-name" value="council-comments">
+      <p class="hp"><label>Do not fill this out: <input name="company" tabindex="-1" autocomplete="off"></label></p>
+
+      <div class="frow">
+        <div class="field">
+          <label for="first">First name <span class="req">*</span></label>
+          <input id="first" name="first_name" type="text" autocomplete="given-name" required>
+        </div>
+        <div class="field">
+          <label for="last">Last name <span class="req">*</span></label>
+          <input id="last" name="last_name" type="text" autocomplete="family-name" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="address">Street address <span class="req">*</span></label>
+        <input id="address" name="street_address" type="text" autocomplete="street-address" required>
+      </div>
+
+      <div class="frow">
+        <div class="field">
+          <label for="email">Email <span class="req">*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="phone">Cell phone <span class="opt">(optional)</span></label>
+          <input id="phone" name="cell_phone" type="tel" autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+
+      <div class="consent" id="smsConsent" hidden>
+        <label for="smsopt">
+          <input id="smsopt" name="sms_consent" type="checkbox" value="yes">
+          <span>By checking this box, I agree to receive recurring text messages from the Newport Beach Firefighters Association about Fire Station 3 and public safety issues at the cell number I provided, including messages sent using an automatic telephone dialing system. Consent is not a condition of submitting a comment.</span>
+        </label>
+        <div class="note">Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe or HELP for help. See our <a href="privacy.html">privacy policy</a> for how your information is used.</div>
+      </div>
+
+      <div class="field">
+        <label for="comments">Your comments to the City Council <span class="req">*</span></label>
+        <textarea id="comments" name="comments" required></textarea>
+      </div>
+
+      <button class="submit" type="submit">Submit my comment</button>
+      <p class="formnote">Your information is used to share your comment with the Newport Beach City Council and to contact you about this issue. We do not sell your information. See our <a href="privacy.html">privacy policy</a>.</p>
+    </form>
+  </div>
+</section>
+
+<section id="staffing">
+  <div class="wrap">
+    <div class="kicker">Staffing and Dispatch</div>
+    <h2>What responds when you call 911</h2>
+    <p>Engines are staffed with three personnel: a company officer, an engineer, and a firefighter paramedic. Trucks are staffed with four. Ambulances carry two firefighter paramedics. The response grows with the emergency.</p>
+    <div class="tiers">
+      <div class="tier" data-tier style="--tc:#4A7EBB">
+        <div class="head">
+          <div class="name">Medical emergency</div>
+          <div class="count">5 to 6<small>PERSONNEL</small></div>
+        </div>
+        <div class="units">
+          <div class="unit"><div class="ul">Engine or Truck<span>3 or 4 personnel</span></div><div class="ff"><i></i><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Ambulance<span>2 paramedics</span></div><div class="ff"><i></i><i></i></div></div>
+        </div>
+      </div>
+      <div class="tier" data-tier style="--tc:#14304F">
+        <div class="head">
+          <div class="name">Reported structure fire or traffic collision</div>
+          <div class="count">13<small>PERSONNEL</small></div>
+        </div>
+        <div class="units">
+          <div class="unit"><div class="ul">Engine<span>3 personnel</span></div><div class="ff"><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Engine<span>3 personnel</span></div><div class="ff"><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Truck<span>4 personnel</span></div><div class="ff"><i></i><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Ambulance<span>2 paramedics</span></div><div class="ff"><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Battalion Chief<span>1 officer</span></div><div class="ff"><i></i></div></div>
+        </div>
+      </div>
+      <div class="tier" data-tier style="--tc:#B03A2E">
+        <div class="head">
+          <div class="name">Confirmed working fire</div>
+          <div class="count">23<small>PERSONNEL</small></div>
+        </div>
+        <div class="units">
+          <div class="unit"><div class="ul">Engine<span>3 personnel</span></div><div class="ff"><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Engine<span>3 personnel</span></div><div class="ff"><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Engine<span>3 personnel</span></div><div class="ff"><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Engine<span>3 personnel</span></div><div class="ff"><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Truck<span>4 personnel</span></div><div class="ff"><i></i><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Truck<span>4 personnel</span></div><div class="ff"><i></i><i></i><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Ambulance<span>2 paramedics</span></div><div class="ff"><i></i><i></i></div></div>
+          <div class="unit"><div class="ul">Battalion Chief<span>1 officer</span></div><div class="ff"><i></i></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="tablenote">A confirmed working fire draws apparatus from across the city. Station 3 houses one of only two truck companies in Newport Beach and one of only four ambulances, so its position determines ladder and transport coverage for the eastern half of the city.</p>
+    <table class="data" style="margin-top:22px">
+      <tr><th>Station</th><th>Location</th><th>Frontline units</th></tr>
+      <tr><td>1</td><td>110 E. Balboa Blvd (Balboa Peninsula)</td><td>Engine</td></tr>
+      <tr><td>2</td><td>2807 Newport Blvd (Lido)</td><td>Engine, Truck, Ambulance</td></tr>
+      <tr><td>3</td><td>868 Santa Barbara Dr (Newport Center)</td><td>Engine, Truck, Ambulance</td></tr>
+      <tr><td>4</td><td>124 Marine Ave (Balboa Island)</td><td>Engine</td></tr>
+      <tr><td>5</td><td>410 Marigold Ave (Corona del Mar)</td><td>Engine, Ambulance</td></tr>
+      <tr><td>6</td><td>1348 Irvine Ave (Mariners)</td><td>Engine</td></tr>
+      <tr><td>7</td><td>20401 Acacia St (Santa Ana Heights)</td><td>Engine, Ambulance</td></tr>
+      <tr><td>8</td><td>6502 Ridge Park Rd (Newport Coast)</td><td>Engine</td></tr>
+    </table>
+    <p style="margin-top:14px">Speed matters because outcomes are decided in minutes. Fireground research by the National Institute of Standards and Technology shows that how quickly an effective force assembles determines how quickly search, rescue, and fire attack are completed [8]. Survival from out-of-hospital cardiac arrest falls roughly 7 to 10 percent for every minute without intervention [9].</p>
+  </div>
+</section>
+
+<section id="methodology">
+  <div class="wrap fineprint">
+    <div class="kicker">Methodology</div>
+    <h2>How these figures were produced</h2>
+    <p>First-due figures reflect the first-arriving unit from any Newport Beach fire station. Driving distances from both Station 3 locations to every affected area are measured commercial-mapping routes verified by the Association. Distance converts to travel time using the RAND fire response function, travel time in minutes equal to 0.65 plus 1.7 times distance in miles, a standard planning relationship in fire deployment analysis [12]. All figures are light-traffic estimates. The measured figures are consistent with the approximate distances published in the June 10, 2025 City staff report [2].</p>
+    <p>Preemption and emergency lights and sirens are modeled as a modest 20 percent travel-time reduction applied to the share of each route that runs on the Jamboree corridor [13].</p>
+    <p>Prior to drawing conclusions from this analysis, the following should be taken into consideration:</p>
+    <ul class="methodlist">
+      <li>Modeled travel speeds represent planning-level effective response speeds. Actual speeds may be slower with traffic incidents, work zones, weather, special events, signal operations, or roadway capacity constraints.</li>
+      <li>The model does not incorporate incident-level historical dispatch data, seasonal event loads, or the timing of individual traffic signals.</li>
+      <li>Computer modeling considers travel time only. Turnout time is applied per NFPA 1710; alarm handling time of approximately 64 seconds precedes both and is reported separately where noted.</li>
+      <li>Larger apparatus are more cumbersome to maneuver, and modeled figures assume units are in quarters and available at dispatch.</li>
+    </ul>
+    <div class="disclosurebox">
+      <p><b>Educational use and limitations.</b> This analysis is provided for educational and informational purposes only. It is not a guarantee of response.</p>
+      <p>The figures in this report are not drawn from Newport Beach Fire Department computer-aided dispatch records. They are built from publicly available GIS and mapping systems, including current traffic-aware routing, combined with the RAND fire response travel-time model and the turnout times published in NFPA 1710, in order to produce reasonable and defensible planning estimates of travel and response time.</p>
+      <p>Actual response times may be longer. Crew status, system status, apparatus placement, concurrent incidents, traffic, weather, and other conditions outside the scope of this report all affect how quickly help arrives. Nothing here should be relied upon as a commitment or prediction of the response to any particular emergency. <b>In an emergency, dial 911.</b></p>
+      <p>The intent of this report is to present a clear, factual, and meaningful analysis showing that relocating Fire Station 3 from its current location to the transit center site will help Newport Beach firefighters save lives, protect property, and improve the quality of public safety across Newport Beach.</p>
+    </div>
+    <h3 style="margin-top:26px">References</h3>
+    <ol class="refs">
+      <li>Emergency Services Consulting International (April 2022). City of Newport Beach Fire Department Standards of Coverage and Deployment Plan.</li>
+      <li>City of Newport Beach (June 10, 2025). City Council staff report and action: letter to OCTA requesting support for the relocation of Fire Station 3 to 1550 Avocado Avenue. Approved 6-0.</li>
+      <li>Orange County Transportation Authority (August 2025). Correspondence to the City of Newport Beach regarding the Newport Transportation Center.</li>
+      <li>Orange County Transportation Authority (January 2026). Agreement with HDR Engineering, Inc. for a relocation feasibility study of the Newport Transportation Center.</li>
+      <li>Orange County Transportation Authority (June 2026). Board file 26-7018: Term Sheet Agreement with the City of Newport Beach.</li>
+      <li>City of Newport Beach (July 28, 2026). City Council action initiating a memorandum of understanding with OCTA. Approved 7-0.</li>
+      <li>National Fire Protection Association. NFPA 1710: Standard for the Organization and Deployment of Fire Suppression Operations, Emergency Medical Operations, and Special Operations to the Public by Career Fire Departments.</li>
+      <li>Averill, J.D. et al. (2010). Report on Residential Fireground Field Experiments. NIST Technical Note 1661.</li>
+      <li>American Heart Association. Survival from out-of-hospital cardiac arrest declines approximately 7 to 10 percent per minute without CPR or defibrillation.</li>
+      <li>Daily Pilot / Los Angeles Times (July 2, 2025). Coverage of the proposed Station 3 relocation and the Newport Transportation Center.</li>
+      <li>Newport Beach Firefighters Association (July 2026). Response Capabilities Analysis: Relocation of Fire Station 3 and the Newport Transportation Center. Full report available on this site.</li>
+      <li>RAND Fire Project (Kolesar and Walker). Empirical fire apparatus travel-time function, T = 0.65 + 1.7 D, widely applied in fire station location analysis.</li>
+      <li>City of Newport Beach Public Works. Traffic signal preemption (Opticom) equipment locations on the Jamboree Road corridor. Electronic Content Management System, document 3157227: https://ecms.newportbeachca.gov/WEB/DocView.aspx?id=3157227&amp;dbid=0&amp;repo=CNB</li>
+    </ol>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <img src="assets/nbfa-logo-white.png" alt="Newport Beach Firefighters Association">
+    <div>
+      <p><b style="color:#fff">keepingnewportsafe.com</b></p>
+      <p>A data-driven analysis of the NBFD Station 3 relocation, proudly provided by the Newport Beach Firefighters Association.</p>
+      <p style="margin-top:6px"><a href="assets/NBFA_Station3_Response_Capabilities_Analysis.pdf" style="color:#AFC6E0" download>Download the executive summary (PDF)</a></p>
+    </div>
+  </div>
+  <div class="wrap footer-legal">
+    <div class="disclaimer">
+      <p>Paid for by Newport Beach Firefighters Association PAC</p>
+      <p>Not Authorized by a candidate or a committee controlled by a candidate.</p>
+    </div>
+    <p class="footer-privacy"><a href="privacy.html">Privacy Policy</a></p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+var stations = [
+  {n:1, name:"Station 1", addr:"110 E. Balboa Blvd", lat:33.604263, lng:-117.906105, units:"Engine"},
+  {n:2, name:"Station 2", addr:"2807 Newport Blvd", lat:33.613071, lng:-117.929420, units:"Engine, Truck, Ambulance"},
+  {n:4, name:"Station 4", addr:"124 Marine Ave", lat:33.605485, lng:-117.889590, units:"Engine"},
+  {n:5, name:"Station 5", addr:"410 Marigold Ave", lat:33.595955, lng:-117.869535, units:"Engine, Ambulance"},
+  {n:6, name:"Station 6", addr:"1348 Irvine Ave", lat:33.633585, lng:-117.903047, units:"Engine"},
+  {n:7, name:"Station 7", addr:"20401 Acacia St", lat:33.657545, lng:-117.880540, units:"Engine, Ambulance"},
+  {n:8, name:"Station 8", addr:"6502 Ridge Park Rd", lat:33.606174, lng:-117.828896, units:"Engine"}
+];
+var sta3 = {
+  current:  {name:"Station 3 (current)",  addr:"868 Santa Barbara Dr", lat:33.62264, lng:-117.88007},
+  proposed: {name:"Station 3 (proposed)", addr:"1550 Avocado Ave (Newport Transportation Center site)", lat:33.614040, lng:-117.868862}
+};
+var hoods = [
+  {name:'Eastbluff', lat:33.63918, lng:-117.87566, cur:159, prop:232, curNP:182, propNP:253, mi:'1.4 to 2.1 mi' },
+  {name:'Harbor View / Port Streets', lat:33.61889, lng:-117.85397, cur:315, prop:172, curNP:315, propNP:172, mi:'2.8 to 1.3 mi' },
+  {name:'Bonita Canyon / Ford Road', lat:33.62509, lng:-117.85003, cur:289, prop:223, curNP:294, propNP:223, mi:'2.5 to 1.8 mi' },
+  {name:'Harbor Hills Views / Spyglass', lat:33.60556, lng:-117.85678, cur:281, prop:172, curNP:281, propNP:172, mi:'2.5 to 1.3 mi' },
+  {name:'Park Newport', lat:33.62777, lng:-117.88083, cur:92, prop:169, curNP:100, propNP:182, mi:'0.6 to 1.4 mi' },
+  {name:'Sea Island', lat:33.63015, lng:-117.87345, cur:118, prop:188, curNP:131, propNP:202, mi:'0.9 to 1.6 mi' },
+  {name:'Corona del Mar High School', lat:33.63382, lng:-117.87745, cur:134, prop:189, curNP:151, propNP:202, mi:'1.1 to 1.6 mi' },
+  {name:'The Bluffs', lat:33.63337, lng:-117.86178, cur:195, prop:216, curNP:216, propNP:231, mi:'1.74 to 1.89 mi' },
+  {name:'Fashion Island', lat:33.61504, lng:-117.87569, cur:114, prop:93, curNP:119, propNP:94, mi:'0.79 to 0.54 mi' },
+  {name:'Westcliff / Dover Shores', lat:33.62414, lng:-117.90498, cur:130, prop:130, curNP:130, propNP:130, mi:'3.45 to 3.18 mi' },
+  {name:'Newport Heights', lat:33.62879, lng:-117.90883, cur:104, prop:104, curNP:104, propNP:104, mi:'4.1 to 3.4 mi' },
+  {name:'Santa Ana Heights', lat:33.66263, lng:-117.8833, cur:92, prop:92, curNP:92, propNP:92, mi:'3.74 to 4.67 mi' },
+  {name:'Newport Ridge', lat:33.61125, lng:-117.83172, cur:92, prop:92, curNP:92, propNP:92, mi:'4.63 to 3.43 mi' },
+  {name:'Cypress at Pacific Ridge', lat:33.60581, lng:-117.80838, cur:202, prop:202, curNP:202, propNP:202, mi:'6.86 to 5.64 mi' },
+  {name:'Corona del Mar', lat:33.59585, lng:-117.87047, cur:54, prop:54, curNP:54, propNP:54, mi:'3.38 to 2.21 mi' },
+  {name:'Balboa Island', lat:33.60718, lng:-117.89779, cur:106, prop:106, curNP:106, propNP:106, mi:'1.99 to 2.51 mi' },
+  {name:'Lido Isle', lat:33.61347, lng:-117.92031, cur:111, prop:111, curNP:111, propNP:111, mi:'3.24 to 4.29 mi' },
+  {name:'Balboa Peninsula', lat:33.60806, lng:-117.92832, cur:87, prop:87, curNP:87, propNP:87, mi:'3.99 to 5.0 mi' },
+  {name:'Balboa Pier', lat:33.60056, lng:-117.90166, cur:89, prop:89, curNP:89, propNP:89, mi:'2.66 to 3.05 mi' },
+];
+
+function mmss(s){ s=Math.round(s); if(s<60) return 'under 1:00'; return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2); }
+function deltaTxt(d){ if(Math.abs(d)<=5) return 'No change'; var a=Math.abs(d), t=(a<60? a+' sec' : Math.floor(a/60)+' min '+('0'+(a%60)).slice(-2)+' sec'); return (d<0?'-':'+')+t; }
+function markerColor(t){ if(t <= 240) return '#1F7A3D'; if(t < 270) return '#D4A017'; return '#B03A2E'; }
+function deltaClass(d, prop){ if(Math.abs(d)<=5) return 'd-none'; if(d<0) return 'd-good'; if(prop<270) return 'd-warn'; return 'd-bad'; }
+
+(function(){
+  var tbl = document.getElementById('resultsTable');
+  var order = hoods.slice().sort(function(a,b){ return (a.prop-a.cur) - (b.prop-b.cur); });
+  order.forEach(function(h){
+    var d = h.prop - h.cur;
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+h.name+'</td>'
+      + '<td class="c">'+mmss(h.cur)+'</td>'
+      + '<td class="c '+(h.cur<=240?'std-yes':'std-no')+'">'+(h.cur<=240?'Meets':'Does not meet')+'</td>'
+      + '<td class="c">'+mmss(h.prop)+(d<=-20?' <span class="arw">&#9660;</span>':'')+'</td>'
+      + '<td class="c '+(h.prop<=240?'std-yes':'std-no')+'">'+(h.prop<=240?'Meets':'Does not meet')+'</td>'
+      + '<td class="c '+deltaClass(d,h.prop)+'">'+deltaTxt(d)+'</td>';
+    tbl.appendChild(tr);
+  });
+})();
+
+var map = L.map('map', {scrollWheelZoom:false}).setView([33.622, -117.872], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+function sqIcon(color, label){
+  return L.divIcon({className:'',
+    html:'<div style="background:'+color+';color:#fff;border:2px solid #fff;box-shadow:0 0 0 1px #666;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font:700 12px \'Source Sans 3\',sans-serif;">'+label+'</div>',
+    iconSize:[26,26], iconAnchor:[13,13]});
+}
+stations.forEach(function(s){
+  L.marker([s.lat,s.lng],{icon:sqIcon('#7A8694',s.n)}).addTo(map)
+   .bindPopup('<b>'+s.name+'</b><br>'+s.addr+'<br>Units: '+s.units);
+});
+var sta3Marker = L.marker([sta3.current.lat, sta3.current.lng], {icon: sqIcon('#14304F','3'), zIndexOffset:1000}).addTo(map);
+var hoodMarkers = [];
+hoods.forEach(function(h){
+  var m = L.circleMarker([h.lat,h.lng],{radius:11,color:'#fff',weight:2,fillOpacity:0.92}).addTo(map);
+  m.hood = h; hoodMarkers.push(m);
+});
+function render(mode){
+  var s = sta3[mode];
+  sta3Marker.setLatLng([s.lat,s.lng]);
+  sta3Marker.bindPopup('<b>'+s.name+'</b><br>'+s.addr+'<br>Units: Engine, Truck, Ambulance');
+  hoodMarkers.forEach(function(m){
+    var h = m.hood, t = (mode==='current') ? h.cur : h.prop, d = h.prop - h.cur;
+    m.setStyle({fillColor: markerColor(t)});
+    m.bindPopup('<b>'+h.name+'</b><br>'+
+      'Today, first unit arrives in: '+mmss(h.cur)+' travel<br>'+
+      'Proposed: '+mmss(h.prop)+' travel'+(d<=-20?' <span class="arw">&#9660;</span>':'')+'<br>'+
+      'Change: <b>'+deltaTxt(d)+'</b>'+(h.mi? '<br>Driving distance: '+h.mi : '')+
+      '<br><span style="color:#5B6470;font-size:12px">First-arriving unit from any station, light traffic, with signal preemption</span>');
+  });
+  document.getElementById('btnCurrent').classList.toggle('active', mode==='current');
+  document.getElementById('btnProposed').classList.toggle('active', mode==='proposed');
+}
+document.getElementById('btnCurrent').addEventListener('click', function(){ render('current'); });
+document.getElementById('btnProposed').addEventListener('click', function(){ render('proposed'); });
+render('current');
+
+// Reveal SMS consent only when a cell number is entered
+(function(){
+  var phone = document.getElementById('phone');
+  var box = document.getElementById('smsConsent');
+  var chk = document.getElementById('smsopt');
+  if(!phone || !box) return;
+  function sync(){
+    var has = phone.value.replace(/[^0-9]/g,'').length >= 10;
+    box.hidden = !has;
+    if(!has && chk) chk.checked = false;
+  }
+  phone.addEventListener('input', sync);
+  phone.addEventListener('blur', sync);
+  sync();
+})();
+
+// Staggered reveal of the response tiers
+(function(){
+  var tiers = document.querySelectorAll('[data-tier]');
+  function run(tier){
+    if(tier.classList.contains('go')) return;
+    var blocks = tier.querySelectorAll('.ff i');
+    blocks.forEach(function(b,i){ b.style.animationDelay = (i*55)+'ms'; });
+    tier.classList.add('go');
+  }
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ run(e.target); io.unobserve(e.target); } });
+    }, {threshold:0.35});
+    tiers.forEach(function(t){ io.observe(t); });
+  } else {
+    tiers.forEach(run);
+  }
+})();
+</script>
+</body>
+</html>
