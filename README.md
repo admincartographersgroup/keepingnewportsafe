@@ -10,8 +10,10 @@ Static single-page site. No build step. Deploys as-is to Netlify, GitHub Pages, 
 - `privacy.html` - privacy policy (linked from the comment form and SMS consent)
 - `thanks.html` - post-submission confirmation page (form `action` target)
 - `assets/nbfa-logo.png` - NBFA logo (blue)
+- `assets/nbfa-logo-white.png` - NBFA logo (white, used in the footer)
 - `assets/NBFA_Station3_Response_Capabilities_Analysis.pdf` - full report (download link)
-- `assets/map_before_after.png`, `assets/map_delta.png`, `assets/units_on_scene.png` - static figures
+- `assets/savings_charts.png` - static savings figures
+- `assets/station-hero.jpg` - hero background image (see PRE-PUBLISH CHECKLIST item 0)
 
 ## Comment form (Netlify)
 
