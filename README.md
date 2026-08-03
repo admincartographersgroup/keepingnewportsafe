@@ -12,7 +12,8 @@ Static single-page site. No build step. Deploys as-is to Netlify, GitHub Pages, 
 - `assets/nbfa-logo.png` - NBFA logo (blue)
 - `assets/nbfa-logo-white.png` - NBFA logo (white, used in the footer)
 - `assets/NBFA_Station3_Response_Capabilities_Analysis.pdf` - full report (download link)
-- `assets/savings_charts.png` - static savings figures
+- `assets/travel_time_comparison.png` - Figure 1, first-due travel time by area
+- `assets/savings_charts.png` - Figure 2, confirmed working fire assembly curves
 - `assets/station-hero.jpg` - hero background image (see PRE-PUBLISH CHECKLIST item 0)
 
 ## Comment form (Netlify)
