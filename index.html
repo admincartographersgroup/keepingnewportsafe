@@ -70,6 +70,8 @@ section.alt{background:var(--panel)}
 .pull b{color:var(--navy)}
 
 table.data{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:0.95rem;background:#fff}
+.tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.tablescroll table.data{min-width:460px}
 table.data th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
 table.data td{border:1px solid var(--line);padding:7px 10px;vertical-align:top}
 table.data tr:nth-child(even) td{background:#F7FAFC}
@@ -298,9 +300,11 @@ button.submit:hover{background:#1d4470}
       <b>Citywide worst case: 5:15 today, 3:46 under the relocation.</b> No neighborhood is left outside the standard.
     </div>
     <p>Ten areas across the city are entirely unaffected, because their first-due station does not change: the Peninsula, Balboa Island, Balboa Pier, Lido Isle, Corona del Mar, Newport Heights, Westcliff and Dover Shores, Santa Ana Heights, Newport Ridge, and Cypress at Pacific Ridge. Several neighborhoods close to the current station give back time while remaining inside the standard: Eastbluff moves from 2:39 to 3:46 and Park Newport from 1:32 to 2:47. Those changes are measured in seconds. The gains in the underserved corridors are measured in minutes.</p>
-    <table class="data" id="resultsTable">
-      <tr><th>Area</th><th>Today</th><th>Standard</th><th>Proposed</th><th>Standard</th><th>Change</th></tr>
-    </table>
+    <div class="tablescroll" tabindex="0" role="region" aria-label="First-due travel time by area">
+      <table class="data" id="resultsTable">
+        <tr><th>Area</th><th>Today</th><th>Standard</th><th>Proposed</th><th>Standard</th><th>Change</th></tr>
+      </table>
+    </div>
     <p class="tablenote">First-due travel time, light traffic, first-arriving unit from any station, with Opticom signal preemption applied on the Jamboree corridor. A down arrow marks an area where response improves by 20 seconds or more. Total response from dispatch adds 60 to 80 seconds of turnout. Standard refers to the NFPA 1710 four-minute first-due travel objective. Times under one minute are shown as under 1:00.</p>
     <figure>
       <img src="assets/travel_time_comparison.png" alt="First-due travel time by area, current Station 3 compared with the Avocado Avenue site, against the four-minute standard">
@@ -452,6 +456,7 @@ button.submit:hover{background:#1d4470}
       </div>
     </div>
     <p class="tablenote">A confirmed working fire draws apparatus from across the city. Station 3 houses one of only two truck companies in Newport Beach and one of only four ambulances, so its position determines ladder and transport coverage for the eastern half of the city. Personnel counts reflect NBFD-assigned units only; major incidents may also draw mutual and automatic aid from neighboring departments.</p>
+    <div class="tablescroll" tabindex="0" role="region" aria-label="Fire station locations and frontline units">
     <table class="data" style="margin-top:22px">
       <tr><th>Station</th><th>Location</th><th>Frontline units</th></tr>
       <tr><td>1</td><td>110 E. Balboa Blvd (Balboa Peninsula)</td><td>Engine</td></tr>
@@ -463,6 +468,7 @@ button.submit:hover{background:#1d4470}
       <tr><td>7</td><td>20401 Acacia St (Santa Ana Heights)</td><td>Engine, Ambulance</td></tr>
       <tr><td>8</td><td>6502 Ridge Park Rd (Newport Coast)</td><td>Engine</td></tr>
     </table>
+    </div>
     <p style="margin-top:14px">Speed matters because outcomes are decided in minutes. Fireground research by the National Institute of Standards and Technology shows that how quickly an effective force assembles determines how quickly search, rescue, and fire attack are completed [8]. Survival from out-of-hospital cardiac arrest falls roughly 7 to 10 percent for every minute without intervention [9].</p>
   </div>
 </section>
